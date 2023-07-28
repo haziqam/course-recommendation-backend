@@ -2,14 +2,66 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/haziqam/course-scheduler-backend/packages/database"
+	"github.com/haziqam/course-scheduler-backend/packages/models"
 )
 
-func GetJurusan(c *fiber.Ctx) error {
-	// TODO: menquery untuk SELECT * FROM Jurusan, simpen di array, return array
-	return c.SendString("nich Jurusan")
+func GetAllJurusan(c *fiber.Ctx) error {
+	query := `
+		SELECT * 
+		FROM jurusan
+	`
+	rows, err := database.DbInstance.Query(query)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Query error"})
+	}
+
+	defer rows.Close()
+
+	var jurusanArr []models.Jurusan
+	
+	for rows.Next() {
+		jurusan := new(models.Jurusan)
+		err = jurusan.ScanRow(rows);
+		if err != nil {
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{"error": "Error scanning rows"})
+		}
+		jurusanArr = append(jurusanArr, *jurusan)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Error iterating rows"})
+	}
+
+	return c.JSON(jurusanArr)
 }
 
 func AddJurusan(c *fiber.Ctx) error {
-	// TODO: parse body, query untuk INSERT INTO FAKULTAS VALUES(...)
-	return c.SendString("hehhe")
+	var newJurusan models.Jurusan
+	err := c.BodyParser(&newJurusan)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Error parsing request body"})
+	}
+
+	query := `
+		INSERT INTO jurusan(nama_jurusan, nama_fakultas) 
+		VALUES ($1, $2)
+	`
+	_, err = database.DbInstance.Exec(query, newJurusan.NamaJurusan, newJurusan.NamaFakultas)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Query failed"})
+	}
+	
+	c.Status(fiber.StatusCreated)
+	return c.JSON(fiber.Map{"message": "Jurusan added successfully"})
+}
+
+func RemoveJurusan(c *fiber.Ctx) error {
+	//TODO: implement
 }
