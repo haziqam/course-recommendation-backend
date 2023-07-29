@@ -43,7 +43,7 @@ func GetAllMatkul(c *fiber.Ctx) error {
 }
 
 func AddMatkul(c *fiber.Ctx) error {
-	var newMatkul models.Matkul
+	var newMatkul []models.Matkul
 	err := c.BodyParser(&newMatkul)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -54,20 +54,23 @@ func AddMatkul(c *fiber.Ctx) error {
 		INSERT INTO matkul(nama_matkul, sks, nama_jurusan, min_semester, prediksi) 
 		VALUES ($1, $2, $3, $4, $5)
 	`
-	_, err = database.DbInstance.Exec(query, newMatkul.NamaMatkul, newMatkul.SKS, newMatkul.NamaJurusan, 
-		newMatkul.MinSemester, newMatkul.PrediksiIndeks)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{"error": "Query failed"})
+
+	for _, matkul := range newMatkul {
+		_, err = database.DbInstance.Exec(query, matkul.NamaMatkul, matkul.SKS, matkul.NamaJurusan, 
+			matkul.MinSemester, matkul.PrediksiIndeks)
+		if err != nil {
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{"error": "Query failed"})
+		}
 	}
 	
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{"message": "Matkul added successfully"})
 }
 
-func RemoveMatkul(c *fiber.Ctx) error {
-	//TODO: implement
-}
+// func RemoveMatkul(c *fiber.Ctx) error {
+// 	//TODO: implement
+// }
 
 func FindMatkul(c *fiber.Ctx) error {
 	namaFakultas := c.Query("fakultas")

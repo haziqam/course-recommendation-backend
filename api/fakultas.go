@@ -42,7 +42,7 @@ func GetAllFakultas(c *fiber.Ctx) error {
 //
 
 func AddFakultas(c *fiber.Ctx) error {
-	var newFakultas models.Fakultas
+	var newFakultas []models.Fakultas
 	err := c.BodyParser(&newFakultas)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -53,16 +53,19 @@ func AddFakultas(c *fiber.Ctx) error {
 		INSERT INTO fakultas(nama_fakultas)
 		VALUES ($1)
 	`
-	_, err = database.DbInstance.Exec(query, newFakultas.NamaFakultas)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{"error": "Query failed"})
+
+	for _, fakultas := range newFakultas {
+		_, err = database.DbInstance.Exec(query, fakultas.NamaFakultas)
+		if err != nil {
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{"error": "Query failed"})
+		}
 	}
 	
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{"message": "Fakultas added successfully"})
 }
 
-func RemoveFakultas(c *fiber.Ctx) error {
-	//TODO: implement
-}
+// func RemoveFakultas(c *fiber.Ctx) error {
+// 	//TODO: implement
+// }

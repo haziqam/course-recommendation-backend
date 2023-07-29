@@ -41,7 +41,7 @@ func GetAllJurusan(c *fiber.Ctx) error {
 }
 
 func AddJurusan(c *fiber.Ctx) error {
-	var newJurusan models.Jurusan
+	var newJurusan []models.Jurusan
 	err := c.BodyParser(&newJurusan)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -52,16 +52,19 @@ func AddJurusan(c *fiber.Ctx) error {
 		INSERT INTO jurusan(nama_jurusan, nama_fakultas) 
 		VALUES ($1, $2)
 	`
-	_, err = database.DbInstance.Exec(query, newJurusan.NamaJurusan, newJurusan.NamaFakultas)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{"error": "Query failed"})
+
+	for _, jurusan := range newJurusan {
+		_, err = database.DbInstance.Exec(query, jurusan.NamaJurusan, jurusan.NamaFakultas)
+		if err != nil {
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{"error": "Query failed"})
+		}
 	}
 	
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{"message": "Jurusan added successfully"})
 }
 
-func RemoveJurusan(c *fiber.Ctx) error {
-	//TODO: implement
-}
+// func RemoveJurusan(c *fiber.Ctx) error {
+// 	//TODO: implement
+// }
