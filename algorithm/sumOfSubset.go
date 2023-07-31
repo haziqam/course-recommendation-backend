@@ -52,16 +52,16 @@ func findSubsets(arr []int, i, sum int, dpTable [][]bool, currentSubset *[]int, 
 		return
 	}
 
-	if dpTable[i-1][sum] {
+	if dpTable[i - 1][sum] {
 		// The current element is not included in the subset
-		findSubsets(arr, i-1, sum, dpTable, currentSubset, subsets)
+		findSubsets(arr, i - 1, sum, dpTable, currentSubset, subsets)
 	}
 
-	if sum >= arr[i-1] && dpTable[i-1][sum-arr[i-1]] {
+	if sum >= arr[i - 1] && dpTable[i - 1][sum - arr[i - 1]] {
 		// The current element is included in the subset
 		*currentSubset = append(*currentSubset, i - 1)
-		findSubsets(arr, i-1, sum-arr[i-1], dpTable, currentSubset, subsets)
-		*currentSubset = (*currentSubset)[:len(*currentSubset)-1] // backtrack
+		findSubsets(arr, i - 1, sum - arr[i - 1], dpTable, currentSubset, subsets)
+		*currentSubset = (*currentSubset)[:len(*currentSubset) - 1] // backtrack
 	}
 }
 
