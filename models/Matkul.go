@@ -36,7 +36,14 @@ func (matkul Matkul) GetNilai() float32 {
 		"D": 1,
 		"E": 0,
 	}
-
 	return tabelNilai[matkul.PrediksiIndeks]
+}
+
+func CountTotalSKS(matkulArr []Matkul) int {
+	totalSKS := 0
+	for _, matkul := range matkulArr {
+		totalSKS += matkul.SKS
+	}
+	return totalSKS
 }
 

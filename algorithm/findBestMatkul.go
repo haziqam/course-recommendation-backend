@@ -6,7 +6,8 @@ import (
 	"github.com/haziqam/course-scheduler-backend/packages/models"
 )
 
-
+// returns []Matkul, IP, SKS
+// assumes totalSKS di availables >= minSKS and maxSKS >= minSKS
 func FindBestMatkul(availables []models.Matkul, minSKS, maxSKS int) ([]models.Matkul, float32, int){
 	//TODO: bikin deskripsi 
 	var SKS []int
