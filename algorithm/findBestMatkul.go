@@ -1,13 +1,13 @@
-package main
+package algorithm
 
 import (
-	"fmt"
+	// "fmt"
 
 	"github.com/haziqam/course-scheduler-backend/packages/models"
 )
 
 
-func findBestMatkul(availables []models.Matkul, minSKS, maxSKS int) ([]models.Matkul, float32, int){
+func FindBestMatkul(availables []models.Matkul, minSKS, maxSKS int) ([]models.Matkul, float32, int){
 	//TODO: bikin deskripsi 
 	var SKS []int
 	var prediksiNilai []float32
@@ -57,31 +57,31 @@ func countIPandSKS(SKS []int, prediksiNilai []float32, choice []int) (float32, i
 	return sumNilai / float32(sumSKS), sumSKS
 }
 
-func main() {
-	// availables := []models.Matkul{
-	// 	models.NewMatkul("m1", 2, "IF", 1, "A"),
-	// 	models.NewMatkul("m2", 1, "IF", 1, "A"),
-	// 	models.NewMatkul("m3", 3, "IF", 1, "B"),
-	// 	models.NewMatkul("m4", 1, "IF", 1, "BC"),
-	// 	models.NewMatkul("m5", 4, "IF", 1, "C"),
-	// 	models.NewMatkul("m6", 1, "IF", 1, "D"),
-	// 	models.NewMatkul("m7", 2, "IF", 1, "E"),
-	// 	models.NewMatkul("m8", 3, "IF", 1, "AB"),
-	// 	models.NewMatkul("m9", 4, "IF", 1, "AB"),
-	// 	models.NewMatkul("m10", 1, "IF", 1, "B"),
-	// }
-	availables := []models.Matkul{
-		models.NewMatkul("m1", 2, "IF", 1, "A"),
-		models.NewMatkul("m2", 1, "IF", 1, "A"),
-		models.NewMatkul("m3", 3, "IF", 1, "A"),
-		models.NewMatkul("m4", 4, "IF", 1, "A"),
-		models.NewMatkul("m5", 1, "IF", 1, "A"),
-		models.NewMatkul("m6", 1, "IF", 1, "A"),
-		models.NewMatkul("m7", 2, "IF", 1, "A"),
-		models.NewMatkul("m8", 3, "IF", 1, "A"),
-		models.NewMatkul("m9", 4, "IF", 1, "A"),
-		models.NewMatkul("m10", 1, "IF", 1, "A"),
-	}
+// func main() {
+// 	// availables := []models.Matkul{
+// 	// 	models.NewMatkul("m1", 2, "IF", 1, "A"),
+// 	// 	models.NewMatkul("m2", 1, "IF", 1, "A"),
+// 	// 	models.NewMatkul("m3", 3, "IF", 1, "B"),
+// 	// 	models.NewMatkul("m4", 1, "IF", 1, "BC"),
+// 	// 	models.NewMatkul("m5", 4, "IF", 1, "C"),
+// 	// 	models.NewMatkul("m6", 1, "IF", 1, "D"),
+// 	// 	models.NewMatkul("m7", 2, "IF", 1, "E"),
+// 	// 	models.NewMatkul("m8", 3, "IF", 1, "AB"),
+// 	// 	models.NewMatkul("m9", 4, "IF", 1, "AB"),
+// 	// 	models.NewMatkul("m10", 1, "IF", 1, "B"),
+// 	// }
+// 	availables := []models.Matkul{
+// 		models.NewMatkul("m1", 2, "IF", 1, "A"),
+// 		models.NewMatkul("m2", 1, "IF", 1, "A"),
+// 		models.NewMatkul("m3", 3, "IF", 1, "A"),
+// 		models.NewMatkul("m4", 4, "IF", 1, "A"),
+// 		models.NewMatkul("m5", 1, "IF", 1, "A"),
+// 		models.NewMatkul("m6", 1, "IF", 1, "A"),
+// 		models.NewMatkul("m7", 2, "IF", 1, "A"),
+// 		models.NewMatkul("m8", 3, "IF", 1, "A"),
+// 		models.NewMatkul("m9", 4, "IF", 1, "A"),
+// 		models.NewMatkul("m10", 1, "IF", 1, "A"),
+// 	}
 
-	fmt.Println(findBestMatkul(availables, 22, 22))
-}
+// 	fmt.Println(findBestMatkul(availables, 22, 22))
+// }

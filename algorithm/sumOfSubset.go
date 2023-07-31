@@ -1,46 +1,46 @@
-package main
+package algorithm
 
 // import "fmt"
 
 func findSubsetsWithSum(arr []int, minSum int, maxSum int) [][]int {
 	// TODO: Add penjelasan
 	arrayLength := len(arr)
-	// Initialize dp table with all false values
-	dp := make([][]bool, arrayLength + 1)
-	for i := range dp {
-		dp[i] = make([]bool, maxSum + 1)
+	// Initialize dpTable  with all false values
+	dpTable := make([][]bool, arrayLength + 1)
+	for i := range dpTable {
+		dpTable[i] = make([]bool, maxSum + 1)
 	}
 
 	// Base case: it is possible to obtain a sum of 0 using an empty subset
 	for i := 0; i <= arrayLength; i++ {
-		dp[i][0] = true
+		dpTable[i][0] = true
 	}
 
-	// Dynamic programming to fill the dp table
+	// Dynamic programming to fill the dpTable table
 	for i := 1; i <= arrayLength; i++ {
 		for j := 1; j <= maxSum; j++ {
 			if arr[i-1] <= j {
-				dp[i][j] = dp[i - 1][j] || dp[i - 1][j - arr[i - 1]]
+				dpTable[i][j] = dpTable[i - 1][j] || dpTable[i - 1][j - arr[i - 1]]
 			} else {
-				dp[i][j] = dp[i - 1][j]
+				dpTable[i][j] = dpTable[i - 1][j]
 			}
 		}
 	}
 
-	// Backtrack to find all subsets whose sum is maxSum
+	// Backtrack to find all subsets where minSum <= sum <= maxSum
 	var subsets [][]int
 
 	for k := minSum; k <= maxSum; k++ {
 		var currentSubset []int
-		findSubsets(arr, arrayLength, k, dp, &currentSubset, &subsets)
+		findSubsets(arr, arrayLength, k, dpTable, &currentSubset, &subsets)
 	} 
 
 	return subsets
 }
 
-func findSubsets(arr []int, i, sum int, dp [][]bool, currentSubset *[]int, subsets *[][]int) {
+func findSubsets(arr []int, i, sum int, dpTable [][]bool, currentSubset *[]int, subsets *[][]int) {
 	//TODO: bikin penjelasan
-	if i == 0 && sum != 0 && dp[0][sum] {
+	if i == 0 && sum != 0 && dpTable[0][sum] {
 		// Add the current subset to the result
 		*subsets = append(*subsets, append([]int{}, *currentSubset...))
 		return
@@ -52,15 +52,15 @@ func findSubsets(arr []int, i, sum int, dp [][]bool, currentSubset *[]int, subse
 		return
 	}
 
-	if dp[i-1][sum] {
+	if dpTable[i-1][sum] {
 		// The current element is not included in the subset
-		findSubsets(arr, i-1, sum, dp, currentSubset, subsets)
+		findSubsets(arr, i-1, sum, dpTable, currentSubset, subsets)
 	}
 
-	if sum >= arr[i-1] && dp[i-1][sum-arr[i-1]] {
+	if sum >= arr[i-1] && dpTable[i-1][sum-arr[i-1]] {
 		// The current element is included in the subset
 		*currentSubset = append(*currentSubset, i - 1)
-		findSubsets(arr, i-1, sum-arr[i-1], dp, currentSubset, subsets)
+		findSubsets(arr, i-1, sum-arr[i-1], dpTable, currentSubset, subsets)
 		*currentSubset = (*currentSubset)[:len(*currentSubset)-1] // backtrack
 	}
 }
