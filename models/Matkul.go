@@ -12,6 +12,16 @@ type Matkul struct {
 	PrediksiIndeks string `json:"prediksiIndeks"`
 }
 
+func NewMatkul(namaMatkul string, SKS int, namaJurusan string, minSemester int, prediksiIndeks string) Matkul {
+	return Matkul{
+		NamaMatkul: namaMatkul,
+		SKS: SKS,
+		NamaJurusan: namaJurusan,
+		MinSemester: minSemester,
+		PrediksiIndeks: prediksiIndeks,
+	}
+}
+
 func (matkul *Matkul) ScanRow(row *sql.Rows) error {
 	return row.Scan(&matkul.NamaMatkul, &matkul.SKS, &matkul.NamaJurusan, &matkul.MinSemester, &matkul.PrediksiIndeks)
 }
