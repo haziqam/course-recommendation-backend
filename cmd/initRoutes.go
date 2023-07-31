@@ -19,4 +19,5 @@ func initRoutes(app *fiber.App) {
 	app.Get("/matkul", api.GetAllMatkul)
 	app.Post("/matkul", api.AddMatkul)
 	app.Get("/matkul/find", api.FindMatkul)
+	app.Get("/matkul/findBestOptions", api.FindBestOptions)
 }
