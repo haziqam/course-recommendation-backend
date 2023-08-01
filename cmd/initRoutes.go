@@ -12,12 +12,16 @@ func initRoutes(app *fiber.App) {
 
 	app.Get("/fakultas", api.GetAllFakultas)
 	app.Post("/fakultas", api.AddFakultas)
+	app.Delete("/fakultas", api.RemoveFakultas)
+	app.Post("/fakultas/addFromFile", api.AddFakultasFromFile)
 
 	app.Get("/jurusan", api.GetAllJurusan)
 	app.Post("/jurusan", api.AddJurusan)
+	app.Delete("/jurusan", api.RemoveJurusan)
 
 	app.Get("/matkul", api.GetAllMatkul)
 	app.Post("/matkul", api.AddMatkul)
+	app.Delete("/matkul", api.RemoveMatkul)
 	app.Get("/matkul/find", api.FindMatkul)
-	app.Get("/matkul/findBestOptions", api.FindBestOptions)
+	app.Get("/matkul/find/bestOptions", api.FindBestOptions)
 }

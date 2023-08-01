@@ -70,9 +70,24 @@ func AddMatkul(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "Matkul added successfully"})
 }
 
-// func RemoveMatkul(c *fiber.Ctx) error {
-// 	//TODO: implement
-// }
+func RemoveMatkul(c *fiber.Ctx) error {
+		namaMatkul := c.Query("matkul")
+		namaJurusan := c.Query("jurusan")
+		query := `
+			DELETE FROM matkul
+			WHERE nama_matkul = ($1)
+			AND nama_jurusan = ($2)
+		`
+	
+		_, err := database.DbInstance.Exec(query, namaMatkul, namaJurusan)
+	
+		if err != nil {
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{"error": "Failed to delete matkul"})
+		}
+	
+		return c.SendStatus(fiber.StatusNoContent)
+}
 
 func filterMatkul(namaFakultas string, currentSemester int) ([]models.Matkul, error) {
 	query := `
@@ -151,7 +166,6 @@ func FindBestOptions(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"error": errorMessage})
 	}
 
-	// TODO: validasi totalSKS di filteredmatkul >= minSKS and maxSKS >= minSKS
 	if models.CountTotalSKS(filteredMatkul) < minSKS {
 		c.Status(fiber.StatusNotFound)
 		errorMessage := "Total SKS of all available matkul is less then minimum required SKS"

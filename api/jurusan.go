@@ -65,6 +65,19 @@ func AddJurusan(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "Jurusan added successfully"})
 }
 
-// func RemoveJurusan(c *fiber.Ctx) error {
-// 	//TODO: implement
-// }
+func RemoveJurusan(c *fiber.Ctx) error {
+	namaJurusan := c.Query("jurusan")
+	query := `
+		DELETE FROM jurusan
+		WHERE nama_jurusan = ($1)
+	`
+
+	_, err := database.DbInstance.Exec(query, namaJurusan)
+
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Failed to delete jurusan"})
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
