@@ -1,6 +1,10 @@
 package api
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/haziqam/course-scheduler-backend/packages/database"
 	"github.com/haziqam/course-scheduler-backend/packages/models"
@@ -40,6 +44,25 @@ func GetAllJurusan(c *fiber.Ctx) error {
 	return c.JSON(jurusanArr)
 }
 
+func addJurusan(c *fiber.Ctx, newJurusan []models.Jurusan) error {
+	query := `
+		INSERT INTO jurusan(nama_jurusan, nama_fakultas) 
+		VALUES ($1, $2)
+	`
+
+	for _, jurusan := range newJurusan {
+		_, err := database.DbInstance.Exec(query, jurusan.NamaJurusan, jurusan.NamaFakultas)
+		if err != nil {
+			// log.Fatalln(err)
+			c.Status(fiber.StatusInternalServerError)
+			return c.JSON(fiber.Map{"error": "Query failed"})
+		}
+	}
+	
+	c.Status(fiber.StatusCreated)
+	return c.JSON(fiber.Map{"message": "Jurusan added successfully"})
+}
+
 func AddJurusan(c *fiber.Ctx) error {
 	var newJurusan []models.Jurusan
 	err := c.BodyParser(&newJurusan)
@@ -48,21 +71,42 @@ func AddJurusan(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"error": "Error parsing request body"})
 	}
 
-	query := `
-		INSERT INTO jurusan(nama_jurusan, nama_fakultas) 
-		VALUES ($1, $2)
-	`
+	return addJurusan(c, newJurusan)
+}
 
-	for _, jurusan := range newJurusan {
-		_, err = database.DbInstance.Exec(query, jurusan.NamaJurusan, jurusan.NamaFakultas)
-		if err != nil {
-			c.Status(fiber.StatusInternalServerError)
-			return c.JSON(fiber.Map{"error": "Query failed"})
-		}
+func AddJurusanFromFile(c *fiber.Ctx) error {
+	form, err := c.MultipartForm()
+	if err != nil {
+		log.Println("Error parsing form:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error parsing form"})
 	}
-	
-	c.Status(fiber.StatusCreated)
-	return c.JSON(fiber.Map{"message": "Jurusan added successfully"})
+
+	files := form.File["Jurusan[]"]
+	if len(files) == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No file uploaded"})
+	}
+
+	file, err := files[0].Open()
+	if err != nil {
+		log.Println("Error opening file:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error opening file"})
+	}
+	defer file.Close()
+
+	fileContent, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Println("Error reading file:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error reading file"})
+	}
+
+	var newJurusan []models.Jurusan
+	err = json.Unmarshal(fileContent, &newJurusan)
+	if err != nil {
+		log.Println("Error unmarshaling file content:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error unmarshaling file content"})
+	}
+
+	return addJurusan(c, newJurusan)
 }
 
 func RemoveJurusan(c *fiber.Ctx) error {

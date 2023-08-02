@@ -1,7 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -44,21 +47,14 @@ func GetAllMatkul(c *fiber.Ctx) error {
 	return c.JSON(matkulArr)
 }
 
-func AddMatkul(c *fiber.Ctx) error {
-	var newMatkul []models.Matkul
-	err := c.BodyParser(&newMatkul)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{"error": "Error parsing request body"})
-	}
-
+func addMatkul(c *fiber.Ctx, newMatkul []models.Matkul) error {
 	query := `
 		INSERT INTO matkul(nama_matkul, sks, nama_jurusan, min_semester, prediksi) 
 		VALUES ($1, $2, $3, $4, $5)
 	`
 
 	for _, matkul := range newMatkul {
-		_, err = database.DbInstance.Exec(query, matkul.NamaMatkul, matkul.SKS, matkul.NamaJurusan, 
+		_, err := database.DbInstance.Exec(query, matkul.NamaMatkul, matkul.SKS, matkul.NamaJurusan, 
 			matkul.MinSemester, matkul.PrediksiIndeks)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)
@@ -68,6 +64,52 @@ func AddMatkul(c *fiber.Ctx) error {
 	
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{"message": "Matkul added successfully"})
+}
+
+func AddMatkul(c *fiber.Ctx) error {
+	var newMatkul []models.Matkul
+	err := c.BodyParser(&newMatkul)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Error parsing request body"})
+	}
+
+	return addMatkul(c, newMatkul)
+}
+
+func AddMatkulFromFile(c *fiber.Ctx) error {
+	form, err := c.MultipartForm()
+	if err != nil {
+		log.Println("Error parsing form:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error parsing form"})
+	}
+
+	files := form.File["Matkul[]"]
+	if len(files) == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No file uploaded"})
+	}
+
+	file, err := files[0].Open()
+	if err != nil {
+		log.Println("Error opening file:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error opening file"})
+	}
+	defer file.Close()
+
+	fileContent, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Println("Error reading file:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error reading file"})
+	}
+
+	var newMatkul []models.Matkul
+	err = json.Unmarshal(fileContent, &newMatkul)
+	if err != nil {
+		log.Println("Error unmarshaling file content:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error unmarshaling file content"})
+	}
+
+	return addMatkul(c, newMatkul)
 }
 
 func RemoveMatkul(c *fiber.Ctx) error {

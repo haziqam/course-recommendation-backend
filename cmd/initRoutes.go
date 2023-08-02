@@ -18,10 +18,12 @@ func initRoutes(app *fiber.App) {
 	app.Get("/jurusan", api.GetAllJurusan)
 	app.Post("/jurusan", api.AddJurusan)
 	app.Delete("/jurusan", api.RemoveJurusan)
+	app.Post("/jurusan/addFromFile", api.AddJurusanFromFile)
 
 	app.Get("/matkul", api.GetAllMatkul)
 	app.Post("/matkul", api.AddMatkul)
 	app.Delete("/matkul", api.RemoveMatkul)
+	app.Post("/matkul/addFromFile", api.AddMatkulFromFile)
 	app.Get("/matkul/find", api.FindMatkul)
 	app.Get("/matkul/find/bestOptions", api.FindBestOptions)
 }
