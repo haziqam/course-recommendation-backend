@@ -11,5 +11,5 @@ func main() {
     app := fiber.New()
     app.Use(cors.New())
     initRoutes(app)
-    app.Listen(":3000")
+    app.Listen(":5000")
 }
