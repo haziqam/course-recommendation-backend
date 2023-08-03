@@ -128,7 +128,8 @@ func RemoveMatkul(c *fiber.Ctx) error {
 			return c.JSON(fiber.Map{"error": "Failed to delete matkul"})
 		}
 	
-		return c.SendStatus(fiber.StatusNoContent)
+		c.Status(fiber.StatusOK)
+		return c.JSON(fiber.Map{"message": "Matkul deleted successfully"})
 }
 
 func filterMatkul(namaFakultas string, currentSemester int) ([]models.Matkul, error) {

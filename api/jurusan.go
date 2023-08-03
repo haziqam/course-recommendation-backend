@@ -123,5 +123,6 @@ func RemoveJurusan(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"error": "Failed to delete jurusan"})
 	}
 
-	return c.SendStatus(fiber.StatusNoContent)
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{"message": "Jurusan deleted successfully"})
 }

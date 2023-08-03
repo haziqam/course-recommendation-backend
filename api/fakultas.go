@@ -122,5 +122,6 @@ func RemoveFakultas(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"error": "Failed to delete fakultas"})
 	}
 
-	return c.SendStatus(fiber.StatusNoContent)
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{"message": "Fakultas deleted successfully"})
 }
