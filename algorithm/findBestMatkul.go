@@ -9,7 +9,6 @@ import (
 // returns []Matkul, IP, SKS
 // assumes totalSKS di availables >= minSKS and maxSKS >= minSKS
 func FindBestMatkul(availables []models.Matkul, minSKS, maxSKS int) ([]models.Matkul, float32, int){
-	//TODO: bikin deskripsi 
 	var SKS []int
 	var prediksiNilai []float32
 
@@ -47,7 +46,6 @@ func FindBestMatkul(availables []models.Matkul, minSKS, maxSKS int) ([]models.Ma
 }
  
 func countIPandSKS(SKS []int, prediksiNilai []float32, choice []int) (float32, int) {
-	//TODO: bikin deskripsi
 	var sumNilai float32 = 0.0
 	var sumSKS int =  0
 	for _, index := range choice {

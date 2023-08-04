@@ -3,7 +3,6 @@ package algorithm
 // import "fmt"
 
 func findSubsetsWithSum(arr []int, minSum int, maxSum int) [][]int {
-	// TODO: Add penjelasan
 	arrayLength := len(arr)
 	// Initialize dpTable  with all false values
 	dpTable := make([][]bool, arrayLength + 1)
@@ -19,7 +18,7 @@ func findSubsetsWithSum(arr []int, minSum int, maxSum int) [][]int {
 	// Dynamic programming to fill the dpTable table
 	for i := 1; i <= arrayLength; i++ {
 		for j := 1; j <= maxSum; j++ {
-			if arr[i-1] <= j {
+			if arr[i - 1] <= j {
 				dpTable[i][j] = dpTable[i - 1][j] || dpTable[i - 1][j - arr[i - 1]]
 			} else {
 				dpTable[i][j] = dpTable[i - 1][j]
@@ -39,13 +38,6 @@ func findSubsetsWithSum(arr []int, minSum int, maxSum int) [][]int {
 }
 
 func findSubsets(arr []int, i, sum int, dpTable [][]bool, currentSubset *[]int, subsets *[][]int) {
-	//TODO: bikin penjelasan
-	if i == 0 && sum != 0 && dpTable[0][sum] {
-		// Add the current subset to the result
-		*subsets = append(*subsets, append([]int{}, *currentSubset...))
-		return
-	}
-
 	if i == 0 && sum == 0 {
 		// Found a subset whose sum is K, add it to the result
 		*subsets = append(*subsets, append([]int{}, *currentSubset...))

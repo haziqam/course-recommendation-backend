@@ -5,13 +5,7 @@ go 1.19
 require github.com/gofiber/fiber/v2 v2.48.0
 
 require (
-	github.com/gofiber/utils v0.0.10 // indirect
-	github.com/gorilla/schema v1.1.0 // indirect
-)
-
-require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
-	github.com/gofiber/fiber v1.14.6
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
 	github.com/lib/pq v1.10.9
