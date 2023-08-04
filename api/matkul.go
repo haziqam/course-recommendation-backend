@@ -205,19 +205,19 @@ func FindBestOptions(c *fiber.Ctx) error {
 
 	if len(filteredMatkul) == 0 {
 		c.Status(fiber.StatusNotFound)
-		errorMessage := fmt.Sprintf("No matkul with nama fakultas = %s and minimum semester <= %d found", namaFakultas, currentSemester)
+		errorMessage := fmt.Sprintf("Tidak menemukan matkul dengan nama fakultas = %s dan semester minimum <= %d", namaFakultas, currentSemester)
 		return c.JSON(fiber.Map{"error": errorMessage})
 	}
 
 	if models.CountTotalSKS(filteredMatkul) < minSKS {
 		c.Status(fiber.StatusNotFound)
-		errorMessage := "Total SKS of all available matkul is less then minimum required SKS"
+		errorMessage := "Total SKS matkul yang tersedia lebih sedikit dari SKS minimum yang dapat diambil"
 		return c.JSON(fiber.Map{"error": errorMessage})
 	}
 
 	if maxSKS < minSKS {
 		c.Status(fiber.StatusBadRequest)
-		errorMessage := "Min SKS must be less than or equal to max SKS"
+		errorMessage := "Min SKS harus lebih kecil atau sama dengan max SKS"
 		return c.JSON(fiber.Map{"error": errorMessage})
 	}
 
