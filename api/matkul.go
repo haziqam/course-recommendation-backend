@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"strconv"
 
@@ -27,10 +27,10 @@ func GetAllMatkul(c *fiber.Ctx) error {
 	defer rows.Close()
 
 	var matkulArr []models.Matkul
-	
+
 	for rows.Next() {
 		matkul := new(models.Matkul)
-		err = matkul.ScanRow(rows);
+		err = matkul.ScanRow(rows)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)
 			return c.JSON(fiber.Map{"error": "Error scanning rows"})
@@ -54,14 +54,14 @@ func addMatkul(c *fiber.Ctx, newMatkul []models.Matkul) error {
 	`
 
 	for _, matkul := range newMatkul {
-		_, err := database.DbInstance.Exec(query, matkul.NamaMatkul, matkul.SKS, matkul.NamaJurusan, 
+		_, err := database.DbInstance.Exec(query, matkul.NamaMatkul, matkul.SKS, matkul.NamaJurusan,
 			matkul.MinSemester, matkul.PrediksiIndeks)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)
 			return c.JSON(fiber.Map{"error": "Query failed"})
 		}
 	}
-	
+
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{"message": "Matkul added successfully"})
 }
@@ -96,7 +96,7 @@ func AddMatkulFromFile(c *fiber.Ctx) error {
 	}
 	defer file.Close()
 
-	fileContent, err := ioutil.ReadAll(file)
+	fileContent, err := io.ReadAll(file)
 	if err != nil {
 		log.Println("Error reading file:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error reading file"})
@@ -113,23 +113,23 @@ func AddMatkulFromFile(c *fiber.Ctx) error {
 }
 
 func RemoveMatkul(c *fiber.Ctx) error {
-		namaMatkul := c.Query("matkul")
-		namaJurusan := c.Query("jurusan")
-		query := `
+	namaMatkul := c.Query("matkul")
+	namaJurusan := c.Query("jurusan")
+	query := `
 			DELETE FROM matkul
 			WHERE nama_matkul = ($1)
 			AND nama_jurusan = ($2)
 		`
-	
-		_, err := database.DbInstance.Exec(query, namaMatkul, namaJurusan)
-	
-		if err != nil {
-			c.Status(fiber.StatusInternalServerError)
-			return c.JSON(fiber.Map{"error": "Failed to delete matkul"})
-		}
-	
-		c.Status(fiber.StatusOK)
-		return c.JSON(fiber.Map{"message": "Matkul deleted successfully"})
+
+	_, err := database.DbInstance.Exec(query, namaMatkul, namaJurusan)
+
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Failed to delete matkul"})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{"message": "Matkul deleted successfully"})
 }
 
 func filterMatkul(namaFakultas string, currentSemester int) ([]models.Matkul, error) {
@@ -151,7 +151,7 @@ func filterMatkul(namaFakultas string, currentSemester int) ([]models.Matkul, er
 
 	for rows.Next() {
 		matkul := new(models.Matkul)
-		err = matkul.ScanRow(rows);
+		err = matkul.ScanRow(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -222,11 +222,11 @@ func FindBestOptions(c *fiber.Ctx) error {
 	}
 
 	bestOptions, IP, SKS := algorithm.FindBestMatkul(filteredMatkul, minSKS, maxSKS)
-	
+
 	return c.JSON(fiber.Map{
 		"bestOptions": bestOptions,
-		"IP": IP,
-		"SKS": SKS,
+		"IP":          IP,
+		"SKS":         SKS,
 	})
 
 }

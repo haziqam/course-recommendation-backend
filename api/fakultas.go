@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,7 +24,7 @@ func GetAllFakultas(c *fiber.Ctx) error {
 	defer rows.Close()
 
 	var fakultasArr []models.Fakultas
-	
+
 	for rows.Next() {
 		fakultas := new(models.Fakultas)
 		err = fakultas.ScanRow(rows)
@@ -57,7 +57,7 @@ func addFakultas(c *fiber.Ctx, newFakultas []models.Fakultas) error {
 			return c.JSON(fiber.Map{"error": "Query failed"})
 		}
 	}
-	
+
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{"message": "Fakultas added successfully"})
 }
@@ -92,7 +92,7 @@ func AddFakultasFromFile(c *fiber.Ctx) error {
 	}
 	defer file.Close()
 
-	fileContent, err := ioutil.ReadAll(file)
+	fileContent, err := io.ReadAll(file)
 	if err != nil {
 		log.Println("Error reading file:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error reading file"})

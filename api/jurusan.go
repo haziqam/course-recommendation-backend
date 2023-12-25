@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,10 +24,10 @@ func GetAllJurusan(c *fiber.Ctx) error {
 	defer rows.Close()
 
 	var jurusanArr []models.Jurusan
-	
+
 	for rows.Next() {
 		jurusan := new(models.Jurusan)
-		err = jurusan.ScanRow(rows);
+		err = jurusan.ScanRow(rows)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError)
 			return c.JSON(fiber.Map{"error": "Error scanning rows"})
@@ -58,7 +58,7 @@ func addJurusan(c *fiber.Ctx, newJurusan []models.Jurusan) error {
 			return c.JSON(fiber.Map{"error": "Query failed"})
 		}
 	}
-	
+
 	c.Status(fiber.StatusCreated)
 	return c.JSON(fiber.Map{"message": "Jurusan added successfully"})
 }
@@ -93,7 +93,7 @@ func AddJurusanFromFile(c *fiber.Ctx) error {
 	}
 	defer file.Close()
 
-	fileContent, err := ioutil.ReadAll(file)
+	fileContent, err := io.ReadAll(file)
 	if err != nil {
 		log.Println("Error reading file:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error reading file"})
