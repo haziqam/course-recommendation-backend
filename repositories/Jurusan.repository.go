@@ -110,6 +110,22 @@ func (repo *JurusanRepo) RemoveJurusanByName(jurusanName string) error {
 	return nil
 }
 
+func (repo *JurusanRepo) UpdateJurusan(oldJurusanName string, newJurusan models.Jurusan) error {
+	query := `
+		UPDATE jurusan
+		SET nama_jurusan = ($1),
+		nama_fakultas = ($2)
+		WHERE nama_jurusan = ($3);
+	`
+
+	_, err := database.DbInstance.Exec(query, newJurusan.NamaJurusan, newJurusan.NamaFakultas, oldJurusanName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func scanIntoJurusan(scanner utils.IScanner) (*models.Jurusan, error) {
 	jurusan := new(models.Jurusan)
 	err := scanner.Scan(&jurusan.NamaJurusan, &jurusan.NamaFakultas)

@@ -23,7 +23,7 @@ func ConnectDB() {
 	var err error
 	DbInstance, err = sql.Open("postgres", connectionString)
 	if err != nil {
-			log.Fatalln("Failed to connect to database. Error:\n", err)
+		log.Fatalln("Failed to connect to database. Error:\n", err)
 	}
 
 	initializeTables(DbInstance)
@@ -32,8 +32,8 @@ func ConnectDB() {
 func initializeTables(DbInstance *sql.DB) {
 	_, err := DbInstance.Exec(`
 		CREATE TABLE IF NOT EXISTS fakultas (
-				nama_fakultas character varying(100) NOT NULL,
-				CONSTRAINT fakultas_pkey PRIMARY KEY (nama_fakultas)
+			nama_fakultas character varying(100) NOT NULL,
+			CONSTRAINT fakultas_pkey PRIMARY KEY (nama_fakultas)
 		)
 	`)
 

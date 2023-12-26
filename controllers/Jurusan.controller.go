@@ -72,3 +72,47 @@ func RemoveJurusan(c *fiber.Ctx) error {
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{"message": "Jurusan deleted successfully"})
 }
+
+func UpdateJurusan(c *fiber.Ctx) error {
+	var requestBody = c.Body()
+	var requestBodyMap map[string]string
+
+	err := json.Unmarshal(requestBody, &requestBodyMap)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Error unmarshaling file content"})
+	}
+
+	oldJurusanName := requestBodyMap["oldJurusanName"]
+	newJurusanName := requestBodyMap["newJurusanName"]
+	newJurusanFakultas := requestBodyMap["newJurusanFakultas"]
+
+	jurusan, err := jurusanRepo.GetJurusanByName(oldJurusanName)
+
+	if err != nil || jurusan == nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{"error": "Failed to find jurusan"})
+	}
+
+	if oldJurusanName == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{"error": "Insufficient parameters. Required: oldJurusanName"})
+	}
+
+	if newJurusanName != "" {
+		jurusan.NamaJurusan = newJurusanName
+	}
+
+	if newJurusanFakultas != "" {
+		jurusan.NamaFakultas = newJurusanFakultas
+	}
+
+	err = jurusanRepo.UpdateJurusan(oldJurusanName, *jurusan)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Failed to update jurusan"})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{"message": "Jurusan updated successfully"})
+}
