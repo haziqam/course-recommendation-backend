@@ -56,6 +56,17 @@ func (repo *MatkulRepo) GetAllMatkul() ([]models.Matkul, error) {
 	return matkulArr, nil
 }
 
+func (repo *MatkulRepo) GetMatkulByName(matkulName string) (*models.Matkul, error) {
+	query := `
+		SELECT * FROM matkul
+		WHERE nama_matkul = ($1)
+	`
+
+	row := database.DbInstance.QueryRow(query, matkulName)
+	return scanIntoMatkul(row)
+
+}
+
 func (repo *MatkulRepo) AddMatkul(newMatkul []models.Matkul) error {
 	tx, err := database.DbInstance.BeginTx(repo.ctx, &sql.TxOptions{
 		Isolation: sql.LevelSerializable,
@@ -94,6 +105,35 @@ func (repo *MatkulRepo) AddMatkul(newMatkul []models.Matkul) error {
 	return nil
 }
 
+func (repo *MatkulRepo) UpdateMatkul(oldMatkulName string, newMatkul models.Matkul) error {
+	query := `
+		UPDATE matkul
+		SET 
+			nama_matkul = ($1),
+			sks = ($2),
+			nama_jurusan = ($3),
+			min_semester = ($4),
+			prediksi = ($5)
+		WHERE nama_matkul = ($6)
+	`
+
+	_, err := database.DbInstance.Exec(
+		query,
+		newMatkul.NamaMatkul,
+		newMatkul.SKS,
+		newMatkul.NamaJurusan,
+		newMatkul.MinSemester,
+		newMatkul.PrediksiIndeks,
+		oldMatkulName,
+	)
+
+	if err != nil {
+		return errors.New("Failed to update matkul: " + err.Error())
+	}
+
+	return nil
+}
+
 func (repo *MatkulRepo) RemoveMatkulByNameAndJurusan(matkulName string, jurusanName string) error {
 	query := `
 		DELETE FROM matkul
@@ -101,7 +141,7 @@ func (repo *MatkulRepo) RemoveMatkulByNameAndJurusan(matkulName string, jurusanN
 		AND nama_jurusan = ($2)
 	`
 
-	_, err := database.DbInstance.Exec(query, matkulName)
+	_, err := database.DbInstance.Exec(query, matkulName, jurusanName)
 
 	if err != nil {
 		return errors.New("Failed to delete matkul: " + err.Error())

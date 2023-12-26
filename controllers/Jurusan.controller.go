@@ -80,7 +80,7 @@ func UpdateJurusan(c *fiber.Ctx) error {
 	err := json.Unmarshal(requestBody, &requestBodyMap)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{"error": "Error unmarshaling file content"})
+		return c.JSON(fiber.Map{"error": "Error unmarshaling request body"})
 	}
 
 	oldJurusanName := requestBodyMap["oldJurusanName"]

@@ -54,13 +54,13 @@ func (repo *JurusanRepo) GetAllJurusan() ([]models.Jurusan, error) {
 	return jurusanArr, nil
 }
 
-func (repo *JurusanRepo) GetJurusanByName(name string) (*models.Jurusan, error) {
+func (repo *JurusanRepo) GetJurusanByName(jurusanName string) (*models.Jurusan, error) {
 	query := `
 		SELECT *
 		FROM jurusan
 		WHERE nama_jurusan = ($1)
 	`
-	row := database.DbInstance.QueryRow(query, name)
+	row := database.DbInstance.QueryRow(query, jurusanName)
 	return scanIntoJurusan(row)
 }
 

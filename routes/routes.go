@@ -25,6 +25,7 @@ func InitRoutes(app *fiber.App) {
 	app.Get("/matkul", controllers.GetAllMatkul)
 	app.Post("/matkul", controllers.AddMatkul)
 	app.Delete("/matkul", controllers.RemoveMatkul)
+	app.Patch("/matkul", controllers.UpdateMatkul)
 	app.Post("/matkul/addFromFile", controllers.AddMatkulFromFile)
 	app.Get("/matkul/find", controllers.FindMatkul)
 	app.Get("/matkul/find/bestOptions", controllers.FindBestOptions)

@@ -54,13 +54,13 @@ func (repo *FakultasRepo) GetAllFakultas() ([]models.Fakultas, error) {
 	return fakultasArr, nil
 }
 
-func (repo *FakultasRepo) GetFakultasByName(name string) (*models.Fakultas, error) {
+func (repo *FakultasRepo) GetFakultasByName(fakultasName string) (*models.Fakultas, error) {
 	query := `
 		SELECT *
 		FROM fakultas
 		WHERE nama_fakultas = ($1)
 	`
-	row := database.DbInstance.QueryRow(query, name)
+	row := database.DbInstance.QueryRow(query, fakultasName)
 	return scanIntoFakultas(row)
 }
 

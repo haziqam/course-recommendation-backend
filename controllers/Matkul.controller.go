@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -49,7 +48,6 @@ func AddMatkulFromFile(c *fiber.Ctx) error {
 	var newMatkul []models.Matkul
 	err = json.Unmarshal(fileContent, &newMatkul)
 	if err != nil {
-		log.Println("Error unmarshaling file content:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error unmarshaling file content"})
 	}
 
@@ -75,6 +73,48 @@ func RemoveMatkul(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{"message": "Matkul deleted successfully"})
+}
+
+type updateMatkulRequestBody struct {
+	OldMatkulName           string `json:"oldMatkulName"`
+	NewMatkulName           string `json:"newMatkulName"`
+	NewMatkulSKS            int    `json:"newMatkulSKS"`
+	NewMatkulJurusan        string `json:"newMatkulJurusan"`
+	NewMatkulMinSemester    int    `json:"newMatkulMinSemester"`
+	NewMatkulPrediksiIndeks string `json:"newMatkulPrediksiIndeks"`
+}
+
+func UpdateMatkul(c *fiber.Ctx) error {
+	var requestBody updateMatkulRequestBody
+
+	err := json.Unmarshal(c.Body(), &requestBody)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Error unmarshaling request body"})
+	}
+
+	oldMatkulName := requestBody.OldMatkulName
+	matkul, err := matkulRepo.GetMatkulByName(oldMatkulName)
+	if err != nil || matkul == nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{"error": "Failed to find matkul"})
+	}
+
+	if oldMatkulName == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{"error": "Insufficient parameters. Required: oldMatkulName"})
+	}
+
+	handlePartialMatkulUpdate(c, matkul, requestBody)
+
+	err = matkulRepo.UpdateMatkul(oldMatkulName, *matkul)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": err.Error()})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{"message": "Matkul updated successfully"})
 }
 
 func FindMatkul(c *fiber.Ctx) error {
@@ -139,5 +179,32 @@ func FindBestOptions(c *fiber.Ctx) error {
 		"IP":          IP,
 		"SKS":         SKS,
 	})
+}
 
+func handlePartialMatkulUpdate(
+	c *fiber.Ctx,
+	updatedMatkul *models.Matkul,
+	requestBody updateMatkulRequestBody,
+) error {
+	if requestBody.NewMatkulName != "" {
+		updatedMatkul.NamaMatkul = requestBody.NewMatkulName
+	}
+
+	if requestBody.NewMatkulSKS != 0 {
+		updatedMatkul.SKS = requestBody.NewMatkulSKS
+	}
+
+	if requestBody.NewMatkulJurusan != "" {
+		updatedMatkul.NamaJurusan = requestBody.NewMatkulJurusan
+	}
+
+	if requestBody.NewMatkulMinSemester != 0 {
+		updatedMatkul.MinSemester = requestBody.NewMatkulMinSemester
+	}
+
+	if requestBody.NewMatkulPrediksiIndeks != "" {
+		updatedMatkul.PrediksiIndeks = requestBody.NewMatkulPrediksiIndeks
+	}
+
+	return nil
 }
