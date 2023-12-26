@@ -6,60 +6,20 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/haziqam/course-scheduler-backend/packages/database"
 	"github.com/haziqam/course-scheduler-backend/packages/models"
+	"github.com/haziqam/course-scheduler-backend/packages/repositories"
 )
 
+var fakultasRepo = repositories.GetFakultasRepoInstance()
+
 func GetAllFakultas(c *fiber.Ctx) error {
-	query := `
-		SELECT * 
-		FROM fakultas
-	`
-	rows, err := database.DbInstance.Query(query)
+	fakultasArr, err := fakultasRepo.GetAllFakultas()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{"error": "Query error"})
-	}
-
-	defer rows.Close()
-
-	var fakultasArr []models.Fakultas
-
-	for rows.Next() {
-		fakultas := new(models.Fakultas)
-		err = fakultas.ScanRow(rows)
-		if err != nil {
-			c.Status(fiber.StatusInternalServerError)
-			return c.JSON(fiber.Map{"error": "Error scanning rows"})
-		}
-		fakultasArr = append(fakultasArr, *fakultas)
-	}
-
-	err = rows.Err()
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{"error": "Error iterating rows"})
+		return c.JSON(fiber.Map{"error": err.Error()})
 	}
 
 	return c.JSON(fakultasArr)
-}
-
-func addFakultas(c *fiber.Ctx, newFakultas []models.Fakultas) error {
-	query := `
-		INSERT INTO fakultas(nama_fakultas)
-		VALUES ($1)
-	`
-
-	for _, fakultas := range newFakultas {
-		_, err := database.DbInstance.Exec(query, fakultas.NamaFakultas)
-		if err != nil {
-			c.Status(fiber.StatusInternalServerError)
-			return c.JSON(fiber.Map{"error": "Query failed"})
-		}
-	}
-
-	c.Status(fiber.StatusCreated)
-	return c.JSON(fiber.Map{"message": "Fakultas added successfully"})
 }
 
 func AddFakultas(c *fiber.Ctx) error {
@@ -70,7 +30,14 @@ func AddFakultas(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"error": "Error parsing request body"})
 	}
 
-	return addFakultas(c, newFakultas)
+	err = fakultasRepo.AddFakultas(newFakultas)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": err.Error()})
+	}
+
+	c.Status(fiber.StatusCreated)
+	return c.JSON(fiber.Map{"message": "Fakultas added successfully"})
 }
 
 func AddFakultasFromFile(c *fiber.Ctx) error {
@@ -105,18 +72,19 @@ func AddFakultasFromFile(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error unmarshaling file content"})
 	}
 
-	return addFakultas(c, newFakultas)
+	err = fakultasRepo.AddFakultas(newFakultas)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": err.Error()})
+	}
+
+	c.Status(fiber.StatusCreated)
+	return c.JSON(fiber.Map{"message": "Fakultas added successfully"})
 }
 
 func RemoveFakultas(c *fiber.Ctx) error {
 	namaFakultas := c.Query("fakultas")
-	query := `
-		DELETE FROM fakultas
-		WHERE nama_fakultas = ($1)
-	`
-
-	_, err := database.DbInstance.Exec(query, namaFakultas)
-
+	err := fakultasRepo.RemoveFakultasByName(namaFakultas)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{"error": "Failed to delete fakultas"})
