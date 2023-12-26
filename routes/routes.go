@@ -13,6 +13,7 @@ func InitRoutes(app *fiber.App) {
 	app.Get("/fakultas", controllers.GetAllFakultas)
 	app.Post("/fakultas", controllers.AddFakultas)
 	app.Delete("/fakultas", controllers.RemoveFakultas)
+	app.Put("/fakultas", controllers.UpdateFakultas)
 	app.Post("/fakultas/addFromFile", controllers.AddFakultasFromFile)
 
 	app.Get("/jurusan", controllers.GetAllJurusan)

@@ -42,13 +42,15 @@ func AddFakultas(c *fiber.Ctx) error {
 func AddFakultasFromFile(c *fiber.Ctx) error {
 	fileContent, err := utils.ParseFileContentFromForm(c, "Fakultas[]")
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": err.Error()})
 	}
 
 	var newFakultas []models.Fakultas
 	err = json.Unmarshal(fileContent, &newFakultas)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error unmarshaling file content"})
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Error unmarshaling file content"})
 	}
 
 	err = fakultasRepo.AddFakultas(newFakultas)
@@ -78,4 +80,32 @@ func RemoveFakultas(c *fiber.Ctx) error {
 
 	c.Status(fiber.StatusOK)
 	return c.JSON(fiber.Map{"message": "Fakultas deleted successfully"})
+}
+
+func UpdateFakultas(c *fiber.Ctx) error {
+	var requestBody = c.Body()
+	var requestBodyMap map[string]string
+
+	err := json.Unmarshal(requestBody, &requestBodyMap)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Error unmarshaling file content"})
+	}
+
+	oldFakultasName := requestBodyMap["oldFakultasName"]
+	newFakultasName := requestBodyMap["newFakultasName"]
+
+	if oldFakultasName == "" || newFakultasName == "" {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{"error": "Insufficient parameters. Required: oldFakultasName, newFakultasName"})
+	}
+
+	err = fakultasRepo.UpdateFakultas(oldFakultasName, newFakultasName)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": err.Error()})
+	}
+
+	c.Status(fiber.StatusOK)
+	return c.JSON(fiber.Map{"message": "Fakultas updated successfully"})
 }

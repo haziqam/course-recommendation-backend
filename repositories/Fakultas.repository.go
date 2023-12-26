@@ -110,6 +110,22 @@ func (repo *FakultasRepo) RemoveFakultasByName(fakultasName string) error {
 	return nil
 }
 
+func (repo *FakultasRepo) UpdateFakultas(oldFakultasName string, newFakultasName string) error {
+	query := `
+		UPDATE fakultas
+		SET nama_fakultas = ($1)
+		WHERE nama_fakultas = ($2)
+	`
+
+	_, err := database.DbInstance.Exec(query, newFakultasName, oldFakultasName)
+
+	if err != nil {
+		return errors.New("Failed to update fakultas: " + err.Error())
+	}
+
+	return nil
+}
+
 func scanIntoFakultas(scanner utils.IScanner) (*models.Fakultas, error) {
 	fakultas := new(models.Fakultas)
 	err := scanner.Scan(&fakultas.NamaFakultas)
