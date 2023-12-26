@@ -2,12 +2,11 @@ package controller
 
 import (
 	"encoding/json"
-	"io"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/haziqam/course-scheduler-backend/packages/models"
 	"github.com/haziqam/course-scheduler-backend/packages/repositories"
+	"github.com/haziqam/course-scheduler-backend/packages/utils"
 )
 
 var fakultasRepo = repositories.GetFakultasRepoInstance()
@@ -41,34 +40,14 @@ func AddFakultas(c *fiber.Ctx) error {
 }
 
 func AddFakultasFromFile(c *fiber.Ctx) error {
-	form, err := c.MultipartForm()
+	fileContent, err := utils.ParseFileContentFromForm(c, "Fakultas[]")
 	if err != nil {
-		log.Println("Error parsing form:", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error parsing form"})
-	}
-
-	files := form.File["Fakultas[]"]
-	if len(files) == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "No file uploaded"})
-	}
-
-	file, err := files[0].Open()
-	if err != nil {
-		log.Println("Error opening file:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error opening file"})
-	}
-	defer file.Close()
-
-	fileContent, err := io.ReadAll(file)
-	if err != nil {
-		log.Println("Error reading file:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error reading file"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	var newFakultas []models.Fakultas
 	err = json.Unmarshal(fileContent, &newFakultas)
 	if err != nil {
-		log.Println("Error unmarshaling file content:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Error unmarshaling file content"})
 	}
 
@@ -84,7 +63,14 @@ func AddFakultasFromFile(c *fiber.Ctx) error {
 
 func RemoveFakultas(c *fiber.Ctx) error {
 	namaFakultas := c.Query("fakultas")
-	err := fakultasRepo.RemoveFakultasByName(namaFakultas)
+
+	fakultas, err := fakultasRepo.GetFakultasByName(namaFakultas)
+	if err != nil || fakultas == nil {
+		c.Status(fiber.StatusInternalServerError)
+		return c.JSON(fiber.Map{"error": "Failed to find fakultas"})
+	}
+
+	err = fakultasRepo.RemoveFakultasByName(namaFakultas)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{"error": "Failed to delete fakultas"})
