@@ -87,25 +87,26 @@ type updateMatkulRequestBody struct {
 func UpdateMatkul(c *fiber.Ctx) error {
 	var requestBody updateMatkulRequestBody
 
-	err := json.Unmarshal(c.Body(), &requestBody)
+	err := c.BodyParser(&requestBody)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{"error": "Error unmarshaling request body"})
 	}
 
 	oldMatkulName := requestBody.OldMatkulName
-	matkul, err := matkulRepo.GetMatkulByName(oldMatkulName)
-	if err != nil || matkul == nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{"error": "Failed to find matkul"})
-	}
 
 	if oldMatkulName == "" {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{"error": "Insufficient parameters. Required: oldMatkulName"})
 	}
 
-	handlePartialMatkulUpdate(c, matkul, requestBody)
+	matkul, err := matkulRepo.GetMatkulByName(oldMatkulName)
+	if err != nil || matkul == nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{"error": "Failed to find matkul"})
+	}
+
+	handlePartialMatkulUpdate(matkul, requestBody)
 
 	err = matkulRepo.UpdateMatkul(oldMatkulName, *matkul)
 	if err != nil {
@@ -182,7 +183,6 @@ func FindBestOptions(c *fiber.Ctx) error {
 }
 
 func handlePartialMatkulUpdate(
-	c *fiber.Ctx,
 	updatedMatkul *models.Matkul,
 	requestBody updateMatkulRequestBody,
 ) error {
