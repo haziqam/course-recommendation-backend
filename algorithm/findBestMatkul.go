@@ -18,9 +18,15 @@ func FindBestMatkul(availables []models.Matkul, minSKS, maxSKS int) ([]models.Ma
 	}
 
 	feasibleChoices := findSubsetsWithSum(SKS, minSKS, maxSKS)
+	
 	var highestIP float32 = 0.0
 	var bestChoiceIndex int
 	var bestChoiceSKS int = 0
+	var bestMatkuls []models.Matkul
+
+	if len(feasibleChoices) == 0 {
+		return bestMatkuls, highestIP, bestChoiceSKS
+	}
 
 	for i, choice := range feasibleChoices {
 		currentIP, currentSKS := countIPandSKS(SKS, prediksiNilai, choice)
@@ -36,7 +42,6 @@ func FindBestMatkul(availables []models.Matkul, minSKS, maxSKS int) ([]models.Ma
 
 	bestChoice := feasibleChoices[bestChoiceIndex]
 
-	var bestMatkuls []models.Matkul
 	for _, index := range bestChoice {
 		bestMatkuls = append(bestMatkuls, availables[index])
 	}
